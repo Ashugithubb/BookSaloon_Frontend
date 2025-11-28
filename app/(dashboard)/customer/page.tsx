@@ -117,18 +117,29 @@ export default function CustomerDashboard() {
                             >
                                 Discover Your Perfect Salon
                             </motion.h1>
-                            <motion.p
-                                initial={{ x: -20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.3 }}
-                                className="text-slate-600 flex items-center gap-2"
-                            >
-                                <span>Welcome back,</span>
-                                <span className="font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                    {user?.name}
-                                </span>
-                                <Sparkles className="w-4 h-4 text-amber-500" />
-                            </motion.p>
+                            {user ? (
+                                <motion.p
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-slate-600 flex items-center gap-2"
+                                >
+                                    <span>Welcome back,</span>
+                                    <span className="font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                        {user.name}
+                                    </span>
+                                    <Sparkles className="w-4 h-4 text-amber-500" />
+                                </motion.p>
+                            ) : (
+                                <motion.p
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-slate-600"
+                                >
+                                    Browse and book appointments at top-rated salons
+                                </motion.p>
+                            )}
                         </div>
                         <motion.div
                             initial={{ x: 20, opacity: 0 }}
@@ -136,21 +147,40 @@ export default function CustomerDashboard() {
                             transition={{ delay: 0.4 }}
                             className="flex flex-wrap gap-3"
                         >
-                            <Link
-                                href="/appointments"
-                                className="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300 font-medium overflow-hidden"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <Calendar className="w-5 h-5 mr-2 relative z-10" />
-                                <span className="relative z-10">My Appointments</span>
-                            </Link>
-                            <button
-                                onClick={logout}
-                                className="inline-flex items-center px-6 py-3 border-2 border-rose-500 text-rose-600 rounded-xl hover:bg-rose-50 transition-all duration-300 font-medium hover:shadow-lg hover:shadow-rose-500/20"
-                            >
-                                <LogOut className="w-5 h-5 mr-2" />
-                                Logout
-                            </button>
+                            {user ? (
+                                <>
+                                    <Link
+                                        href="/appointments"
+                                        className="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300 font-medium overflow-hidden"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <Calendar className="w-5 h-5 mr-2 relative z-10" />
+                                        <span className="relative z-10">My Appointments</span>
+                                    </Link>
+                                    <button
+                                        onClick={logout}
+                                        className="inline-flex items-center px-6 py-3 border-2 border-rose-500 text-rose-600 rounded-xl hover:bg-rose-50 transition-all duration-300 font-medium hover:shadow-lg hover:shadow-rose-500/20"
+                                    >
+                                        <LogOut className="w-5 h-5 mr-2" />
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link
+                                        href="/login"
+                                        className="inline-flex items-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all duration-300 font-medium"
+                                    >
+                                        Login
+                                    </Link>
+                                    <Link
+                                        href="/signup"
+                                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300 font-medium"
+                                    >
+                                        Sign Up
+                                    </Link>
+                                </>
+                            )}
                         </motion.div>
                     </div>
                 </div>
