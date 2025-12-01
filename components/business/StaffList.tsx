@@ -116,6 +116,21 @@ export default function StaffList({ businessId }: StaffListProps) {
                                             {member.name}
                                         </h3>
 
+                                        {/* Invitation Status */}
+                                        {member.userId ? (
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full mt-1">
+                                                ✓ Active Account
+                                            </span>
+                                        ) : member.invitationToken ? (
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full mt-1">
+                                                ⏳ Invitation Pending
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-full mt-1">
+                                                No Email
+                                            </span>
+                                        )}
+
                                         {member.rating > 0 ? (
                                             <div className="flex items-center gap-1 mt-1">
                                                 <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
@@ -129,6 +144,11 @@ export default function StaffList({ businessId }: StaffListProps) {
                                 </div>
 
                                 <div className="mt-5 space-y-2">
+                                    {member.title && (
+                                        <div className="text-sm font-medium text-indigo-600">
+                                            {member.title}
+                                        </div>
+                                    )}
                                     {member.email && (
                                         <div className="flex items-center gap-2 text-sm text-slate-600">
                                             <Mail className="w-4 h-4 text-slate-400" />
@@ -140,6 +160,30 @@ export default function StaffList({ businessId }: StaffListProps) {
                                             <Phone className="w-4 h-4 text-slate-400" />
                                             <span>{member.phone}</span>
                                         </div>
+                                    )}
+                                    {member.yearsOfExperience > 0 && (
+                                        <div className="text-xs text-slate-500">
+                                            {member.yearsOfExperience} years experience
+                                        </div>
+                                    )}
+                                    {member.languages && member.languages.length > 0 && (
+                                        <div className="text-xs text-slate-500">
+                                            Languages: {member.languages.join(', ')}
+                                        </div>
+                                    )}
+
+                                    {/* Copy Invitation Link Button */}
+                                    {member.invitationToken && !member.userId && (
+                                        <button
+                                            onClick={() => {
+                                                const link = `${window.location.origin}/staff/accept-invitation/${member.invitationToken}`;
+                                                navigator.clipboard.writeText(link);
+                                                alert('Invitation link copied to clipboard!');
+                                            }}
+                                            className="mt-2 w-full px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+                                        >
+                                            📋 Copy Invitation Link
+                                        </button>
                                     )}
                                 </div>
 

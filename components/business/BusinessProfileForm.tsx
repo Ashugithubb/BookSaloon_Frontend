@@ -13,7 +13,16 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
         name: '',
         description: '',
         address: '',
+        phone: '',
+        latitude: '',
+        longitude: '',
         category: '',
+        hours: Array(7).fill(null).map((_, i) => ({
+            dayOfWeek: i,
+            startTime: '09:00',
+            endTime: '17:00',
+            isOpen: true
+        }))
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -24,7 +33,18 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                 name: business.name || '',
                 description: business.description || '',
                 address: business.address || '',
+                phone: business.phone || '',
+                latitude: business.latitude || '',
+                longitude: business.longitude || '',
                 category: business.category || '',
+                hours: business.hours && business.hours.length > 0
+                    ? business.hours
+                    : Array(7).fill(null).map((_, i) => ({
+                        dayOfWeek: i,
+                        startTime: '09:00',
+                        endTime: '17:00',
+                        isOpen: true
+                    }))
             });
         }
     }, [business]);
@@ -87,6 +107,42 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
             </div>
 
             <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400"
+                    placeholder="+1 (555) 000-0000"
+                />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Latitude (Optional)</label>
+                    <input
+                        type="number"
+                        step="any"
+                        value={formData.latitude}
+                        onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                        className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400"
+                        placeholder="e.g. 40.7128"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Longitude (Optional)</label>
+                    <input
+                        type="number"
+                        step="any"
+                        value={formData.longitude}
+                        onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                        className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400"
+                        placeholder="e.g. -74.0060"
+                    />
+                </div>
+            </div>
+
+            <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
                 <select
                     value={formData.category}
@@ -100,6 +156,60 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                     <option value="Nail Salon">Nail Salon</option>
                     <option value="Beauty Salon">Beauty Salon</option>
                 </select>
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-medium text-slate-900 mb-4">Business Hours</h3>
+                <div className="space-y-4">
+                    {formData.hours.map((hour, index) => (
+                        <div key={hour.dayOfWeek} className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <div className="w-24 font-medium text-slate-700">
+                                {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][hour.dayOfWeek]}
+                            </div>
+
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={hour.isOpen}
+                                    onChange={(e) => {
+                                        const newHours = [...formData.hours];
+                                        newHours[index].isOpen = e.target.checked;
+                                        setFormData({ ...formData, hours: newHours });
+                                    }}
+                                />
+                                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                <span className="ml-3 text-sm font-medium text-slate-700">{hour.isOpen ? 'Open' : 'Closed'}</span>
+                            </label>
+
+                            {hour.isOpen && (
+                                <div className="flex items-center gap-2 ml-auto">
+                                    <input
+                                        type="time"
+                                        value={hour.startTime}
+                                        onChange={(e) => {
+                                            const newHours = [...formData.hours];
+                                            newHours[index].startTime = e.target.value;
+                                            setFormData({ ...formData, hours: newHours });
+                                        }}
+                                        className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-900"
+                                    />
+                                    <span className="text-slate-500">-</span>
+                                    <input
+                                        type="time"
+                                        value={hour.endTime}
+                                        onChange={(e) => {
+                                            const newHours = [...formData.hours];
+                                            newHours[index].endTime = e.target.value;
+                                            setFormData({ ...formData, hours: newHours });
+                                        }}
+                                        className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-900"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <button

@@ -1,19 +1,22 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
 import {
   Sparkles, Calendar, Star, Users, Shield, Zap,
   Clock, MapPin, Heart, TrendingUp, Award, CheckCircle,
-  Menu, X, ArrowRight, ChevronDown
+  Menu, X, ArrowRight, ChevronDown, LogOut, LayoutDashboard
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
+import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,15 +53,73 @@ export default function HomePage() {
               <Link href="#testimonials" className="text-slate-700 hover:text-indigo-600 font-medium transition-colors">
                 Reviews
               </Link>
-              <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-medium transition-colors">
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                Get Started Free
-              </Link>
+
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-bold border border-indigo-200 shadow-sm">
+                      {user.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <span className="font-semibold text-slate-700">{user.name?.split(' ')[0]}</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {userMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden ring-1 ring-black/5"
+                      >
+                        <div className="px-5 py-4 bg-slate-50/50 border-b border-slate-100">
+                          <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+                          <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
+                          <span className="inline-block mt-2 text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">
+                            {user.role}
+                          </span>
+                        </div>
+                        <div className="p-2">
+                          <Link
+                            href={user.role === 'OWNER' ? '/business' : '/customer'}
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            Dashboard
+                          </Link>
+                          <button
+                            onClick={() => {
+                              logout();
+                              setUserMenuOpen(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <>
+                  <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-medium transition-colors">
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+                  >
+                    Get Started Free
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -76,34 +137,73 @@ export default function HomePage() {
         </div>
 
         {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="md:hidden bg-white border-t border-slate-200"
-          >
-            <div className="px-4 py-6 space-y-4">
-              <Link href="#features" className="block text-slate-700 hover:text-indigo-600 font-medium">
-                Features
-              </Link>
-              <Link href="#how-it-works" className="block text-slate-700 hover:text-indigo-600 font-medium">
-                How It Works
-              </Link>
-              <Link href="#testimonials" className="block text-slate-700 hover:text-indigo-600 font-medium">
-                Reviews
-              </Link>
-              <Link href="/login" className="block text-slate-700 hover:text-indigo-600 font-medium">
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="block text-center bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-6 py-3 rounded-full font-semibold"
-              >
-                Get Started Free
-              </Link>
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-white border-t border-slate-200 overflow-hidden"
+            >
+              <div className="px-4 py-6 space-y-4">
+                <Link href="#features" className="block text-slate-700 hover:text-indigo-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                  Features
+                </Link>
+                <Link href="#how-it-works" className="block text-slate-700 hover:text-indigo-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                  How It Works
+                </Link>
+                <Link href="#testimonials" className="block text-slate-700 hover:text-indigo-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                  Reviews
+                </Link>
+
+                {user ? (
+                  <div className="pt-4 border-t border-slate-100">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                        {user.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900">{user.name}</p>
+                        <p className="text-xs text-slate-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <Link
+                      href={user.role === 'OWNER' ? '/business' : '/customer'}
+                      className="flex items-center gap-2 w-full bg-indigo-50 text-indigo-600 px-4 py-3 rounded-xl font-semibold mb-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                      Go to Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 w-full bg-rose-50 text-rose-600 px-4 py-3 rounded-xl font-semibold"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Link href="/login" className="block text-slate-700 hover:text-indigo-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                      Login
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="block text-center bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-6 py-3 rounded-full font-semibold"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Get Started Free
+                    </Link>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
@@ -201,7 +301,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-rose-100 rounded-3xl shadow-2xl flex items-center justify-center">
                   <div className="text-center p-8">
                     <Sparkles className="w-24 h-24 text-indigo-600 mx-auto mb-4" />
-                    <p className="text-slate-600 text-lg">Hero Illustration</p>
+                    {/* <p className="text-slate-600 text-lg">Hero Illustration</p> */}
                   </div>
                 </div>
                 {/* Floating Cards */}

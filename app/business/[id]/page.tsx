@@ -155,8 +155,8 @@ export default function BusinessDetailPage() {
                                     key={index}
                                     onClick={() => setCurrentImageIndex(index)}
                                     className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex
-                                            ? 'bg-white w-8'
-                                            : 'bg-white/50 hover:bg-white/75'
+                                        ? 'bg-white w-8'
+                                        : 'bg-white/50 hover:bg-white/75'
                                         }`}
                                 />
                             ))}
@@ -217,12 +217,73 @@ export default function BusinessDetailPage() {
                             <p className="text-slate-700 text-lg leading-relaxed mb-6">
                                 {business.description || 'Welcome to our salon! We provide premium beauty services.'}
                             </p>
-                            {business.address && (
-                                <div className="flex items-start gap-3 p-4 bg-indigo-50 rounded-xl">
-                                    <MapPin className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
-                                    <p className="text-slate-700 font-medium">{business.address}</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                {business.address && (
+                                    <div className="flex items-start gap-3 p-4 bg-indigo-50 rounded-xl">
+                                        <MapPin className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm text-indigo-600 font-bold mb-1">Address</p>
+                                            <p className="text-slate-700 font-medium">{business.address}</p>
+                                            <a
+                                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-xs text-indigo-500 hover:text-indigo-700 font-semibold mt-2 inline-flex items-center gap-1"
+                                            >
+                                                Get Directions <ArrowLeft className="w-3 h-3 rotate-180" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+                                {business.phone && (
+                                    <div className="flex items-start gap-3 p-4 bg-rose-50 rounded-xl">
+                                        <Phone className="w-5 h-5 text-rose-600 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm text-rose-600 font-bold mb-1">Phone</p>
+                                            <a href={`tel:${business.phone}`} className="text-slate-700 font-medium hover:text-rose-600 transition-colors">
+                                                {business.phone}
+                                            </a>
+                                            <p className="text-xs text-rose-400 mt-1">Call for inquiries</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Business Hours */}
+                            {business.hours && business.hours.length > 0 && (
+                                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 mb-8">
+                                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-indigo-600" />
+                                        Opening Hours
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {business.hours.map((hour: any) => {
+                                            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                                            const isToday = new Date().getDay() === hour.dayOfWeek;
+
+                                            return (
+                                                <div key={hour.dayOfWeek} className={`flex justify-between items-center text-sm ${isToday ? 'font-bold text-indigo-900 bg-indigo-50 p-2 rounded-lg -mx-2' : 'text-slate-600'}`}>
+                                                    <span className="w-24">{days[hour.dayOfWeek]}</span>
+                                                    {hour.isOpen ? (
+                                                        <span className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                            {hour.startTime} - {hour.endTime}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-center gap-2 text-slate-400">
+                                                            <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                                                            Closed
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             )}
+
+
                         </div>
 
                         {/* Right: Quick Stats */}
@@ -333,9 +394,26 @@ export default function BusinessDetailPage() {
                                         </p>
                                     )}
                                     <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                                        <div className="flex items-center gap-2 text-indigo-600">
-                                            <DollarSign className="w-5 h-5" />
-                                            <span className="text-2xl font-bold">{service.price}</span>
+                                        <div>
+                                            {service.discount && service.discount > 0 ? (
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm text-slate-400 line-through">₹{service.price}</span>
+                                                        <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                                            {service.discount}% OFF
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-emerald-600">
+                                                        <DollarSign className="w-5 h-5" />
+                                                        <span className="text-2xl font-bold">{(service.price * (1 - service.discount / 100)).toFixed(2)}</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-indigo-600">
+                                                    <DollarSign className="w-5 h-5" />
+                                                    <span className="text-2xl font-bold">{service.price}</span>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-2 text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
                                             <Clock className="w-4 h-4" />
@@ -445,8 +523,8 @@ export default function BusinessDetailPage() {
                                                         <Star
                                                             key={i}
                                                             className={`w-4 h-4 ${i < review.rating
-                                                                    ? 'text-amber-500 fill-amber-500'
-                                                                    : 'text-slate-300'
+                                                                ? 'text-amber-500 fill-amber-500'
+                                                                : 'text-slate-300'
                                                                 }`}
                                                         />
                                                     ))}

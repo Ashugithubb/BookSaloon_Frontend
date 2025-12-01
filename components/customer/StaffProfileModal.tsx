@@ -31,12 +31,13 @@ export default function StaffProfileModal({ staffId, businessId, onClose, onBook
 
     if (loading) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-8 max-w-2xl w-full">
-                    <div className="text-center">
-                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                        <p className="mt-2 text-gray-600">Loading profile...</p>
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-white/20 text-center">
+                    <div className="relative w-16 h-16 mx-auto mb-4">
+                        <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
                     </div>
+                    <p className="text-lg font-medium text-slate-700">Loading profile...</p>
                 </div>
             </div>
         );
@@ -44,61 +45,85 @@ export default function StaffProfileModal({ staffId, businessId, onClose, onBook
 
     if (!staff) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-8 max-w-2xl w-full">
-                    <p className="text-center text-gray-600">Staff member not found</p>
-                    <button onClick={onClose} className="mt-4 w-full py-2 bg-gray-200 rounded-md">Close</button>
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center">
+                    <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-3xl">😕</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">Staff Not Found</h3>
+                    <p className="text-slate-500 mb-6">We couldn't find the staff member you're looking for.</p>
+                    <button
+                        onClick={onClose}
+                        className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+                    >
+                        Close
+                    </button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-gray-900">Staff Profile</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-                    >
-                        ×
-                    </button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+            <div
+                className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Close Button - Floating */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 z-10 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md transition-all"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                {/* Hero Header */}
+                <div className="relative h-48 bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-500">
+                    <div className="absolute inset-0 bg-black/10"></div>
+                    <div className="absolute -bottom-12 left-8 flex items-end">
+                        <div className="relative">
+                            {staff.image ? (
+                                <img
+                                    src={staff.image.startsWith('http') ? staff.image : `http://localhost:3001${staff.image}`}
+                                    alt={staff.name}
+                                    className="h-32 w-32 rounded-2xl object-cover border-4 border-white shadow-xl"
+                                />
+                            ) : (
+                                <div className="h-32 w-32 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-bold text-4xl border-4 border-white shadow-xl">
+                                    {staff.name.charAt(0)}
+                                </div>
+                            )}
+                            <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1.5 shadow-md">
+                                <div className="bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Staff Info */}
-                <div className="p-6 border-b bg-gradient-to-br from-purple-50 to-white">
-                    <div className="flex items-center space-x-6">
-                        {staff.image ? (
-                            <img
-                                src={staff.image.startsWith('http') ? staff.image : `http://localhost:3001${staff.image}`}
-                                alt={staff.name}
-                                className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
-                            />
-                        ) : (
-                            <div className="h-24 w-24 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 font-bold text-3xl border-4 border-white shadow-lg">
-                                {staff.name.charAt(0)}
+                {/* Content */}
+                <div className="pt-16 px-8 pb-8">
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 className="text-3xl font-bold text-slate-900">{staff.name}</h2>
+                            <p className="text-slate-500 font-medium flex items-center gap-2 mt-1">
+                                <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">
+                                    {staff.business.name}
+                                </span>
+                            </p>
+                        </div>
+                        {staff.rating > 0 && (
+                            <div className="text-right">
+                                <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
+                                    <span className="text-xl font-bold text-amber-600">{staff.rating.toFixed(1)}</span>
+                                    <div className="flex text-amber-400 text-sm">
+                                        {'★'.repeat(Math.round(staff.rating))}
+                                    </div>
+                                </div>
+                                <p className="text-xs text-slate-400 mt-1 font-medium">{staff.reviewCount} reviews</p>
                             </div>
                         )}
-                        <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-900">{staff.name}</h3>
-                            <p className="text-gray-600 text-sm mt-1">
-                                Works at <span className="font-medium text-purple-600">{staff.business.name}</span>
-                            </p>
-                            {staff.rating > 0 ? (
-                                <div className="flex items-center mt-2">
-                                    <div className="flex items-center text-yellow-500">
-                                        {'★'.repeat(Math.round(staff.rating))}
-                                        {'☆'.repeat(5 - Math.round(staff.rating))}
-                                    </div>
-                                    <span className="ml-2 text-lg font-semibold text-gray-900">{staff.rating.toFixed(1)}</span>
-                                    <span className="ml-1 text-gray-500 text-sm">• {staff.reviewCount} {staff.reviewCount === 1 ? 'review' : 'reviews'}</span>
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-500 mt-2">New team member - No reviews yet</p>
-                            )}
-                        </div>
                     </div>
 
                     {onBookWithStaff && (
@@ -107,56 +132,68 @@ export default function StaffProfileModal({ staffId, businessId, onClose, onBook
                                 onBookWithStaff(staff);
                                 onClose();
                             }}
-                            className="mt-4 w-full py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-md"
+                            className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] transition-all active:scale-[0.98] mb-8 flex items-center justify-center gap-2"
                         >
-                            Book Appointment with {staff.name}
+                            <span>Book Appointment</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
                         </button>
                     )}
-                </div>
 
-                {/* Reviews Section */}
-                <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                        <svg className="w-6 h-6 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        Reviews for {staff.name}
-                    </h3>
+                    {/* Reviews Section */}
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span className="bg-purple-100 p-2 rounded-lg text-purple-600">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            </span>
+                            Client Reviews
+                        </h3>
 
-                    {staff.reviews && staff.reviews.length > 0 ? (
-                        <div className="space-y-4">
-                            {staff.reviews.map((review: any) => (
-                                <div key={review.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center">
-                                            <span className="font-semibold text-gray-900">{review.customer.name}</span>
-                                            <span className="ml-3 text-yellow-500 text-lg">
-                                                {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                        {staff.reviews && staff.reviews.length > 0 ? (
+                            <div className="space-y-4">
+                                {staff.reviews.map((review: any) => (
+                                    <div key={review.id} className="bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-indigo-100 transition-colors">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                                    {review.customer.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-slate-900 text-sm">{review.customer.name}</h4>
+                                                    <div className="flex text-amber-400 text-xs">
+                                                        {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span className="text-xs font-medium text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-100">
+                                                {new Date(review.createdAt).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                })}
                                             </span>
                                         </div>
-                                        <span className="text-xs text-gray-500">
-                                            {new Date(review.createdAt).toLocaleDateString('en-US', {
-                                                month: 'short',
-                                                day: 'numeric',
-                                                year: 'numeric'
-                                            })}
-                                        </span>
+                                        {review.comment && (
+                                            <p className="text-slate-600 text-sm leading-relaxed pl-[3.25rem]">"{review.comment}"</p>
+                                        )}
                                     </div>
-                                    {review.comment && (
-                                        <p className="text-gray-700 text-sm leading-relaxed">{review.comment}</p>
-                                    )}
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                    <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-8">
-                            <svg className="w-16 h-16 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            <p className="text-gray-500">No reviews yet</p>
-                            <p className="text-sm text-gray-400 mt-1">Be the first to review {staff.name}!</p>
-                        </div>
-                    )}
+                                <h4 className="text-slate-900 font-semibold">No reviews yet</h4>
+                                <p className="text-slate-500 text-sm mt-1">Be the first to leave a review!</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -31,6 +31,8 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
     const [showStaffProfile, setShowStaffProfile] = useState(false);
     const [viewingStaffId, setViewingStaffId] = useState<string | null>(null);
 
+    const [slotsLoading, setSlotsLoading] = useState(false);
+
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -53,6 +55,7 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
     };
 
     const fetchAvailableSlots = async () => {
+        setSlotsLoading(true);
         try {
             const { data } = await api.get('/appointments/available-slots', {
                 params: {
@@ -64,6 +67,8 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
             setAvailableSlots(data);
         } catch (error) {
             console.error('Failed to fetch available slots', error);
+        } finally {
+            setSlotsLoading(false);
         }
     };
 
@@ -185,8 +190,8 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                                 setStep(2);
                                             }}
                                             className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${selectedService?.id === service.id
-                                                    ? 'border-indigo-600 bg-indigo-50'
-                                                    : 'border-slate-200 hover:border-indigo-300 bg-white'
+                                                ? 'border-indigo-600 bg-indigo-50'
+                                                : 'border-slate-200 hover:border-indigo-300 bg-white'
                                                 }`}
                                         >
                                             <div className="flex justify-between items-start">
@@ -197,10 +202,25 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                                     )}
                                                 </div>
                                                 <div className="text-right ml-4">
-                                                    <div className="flex items-center gap-1 text-indigo-600 font-bold text-xl">
-                                                        <DollarSign className="w-5 h-5" />
-                                                        {service.price}
-                                                    </div>
+                                                    {service.discount && service.discount > 0 ? (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <span className="text-sm text-slate-400 line-through">₹{service.price}</span>
+                                                                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                                                    {service.discount}% OFF
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1 text-emerald-600 font-bold text-xl">
+                                                                <DollarSign className="w-5 h-5" />
+                                                                {(service.price * (1 - service.discount / 100)).toFixed(2)}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-1 text-indigo-600 font-bold text-xl">
+                                                            <DollarSign className="w-5 h-5" />
+                                                            {service.price}
+                                                        </div>
+                                                    )}
                                                     <div className="flex items-center gap-1 text-slate-500 text-sm mt-1">
                                                         <Clock className="w-4 h-4" />
                                                         {service.duration} min
@@ -230,8 +250,8 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                             setStep(3);
                                         }}
                                         className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${!selectedStaff
-                                                ? 'border-indigo-600 bg-indigo-50'
-                                                : 'border-slate-200 hover:border-indigo-300 bg-white'
+                                            ? 'border-indigo-600 bg-indigo-50'
+                                            : 'border-slate-200 hover:border-indigo-300 bg-white'
                                             }`}
                                     >
                                         <p className="font-semibold text-slate-900">No Preference - Any Available Stylist</p>
@@ -241,8 +261,8 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                             key={staff.id}
                                             whileHover={{ scale: 1.02 }}
                                             className={`border-2 rounded-2xl p-5 transition-all ${selectedStaff?.id === staff.id
-                                                    ? 'border-indigo-600 bg-indigo-50'
-                                                    : 'border-slate-200 hover:border-indigo-300 bg-white'
+                                                ? 'border-indigo-600 bg-indigo-50'
+                                                : 'border-slate-200 hover:border-indigo-300 bg-white'
                                                 }`}
                                         >
                                             <div
@@ -319,15 +339,28 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
 
                                 {selectedDate && (
                                     <div>
-                                        {availableSlots.length === 0 ? (
-                                            <p className="text-slate-500">Loading available times...</p>
+                                        {slotsLoading ? (
+                                            <div className="flex items-center justify-center py-8 text-slate-500 gap-2">
+                                                <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                Loading available times...
+                                            </div>
+                                        ) : availableSlots.length === 0 ? (
+                                            <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                                <Calendar className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                                                <p className="font-medium">No slots available for this date</p>
+                                                <p className="text-sm mt-1">Please try selecting another date</p>
+                                            </div>
                                         ) : (
                                             <>
                                                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                                                     Available Time Slots
                                                 </label>
                                                 {availableSlots.filter((slot) => slot.available).length === 0 ? (
-                                                    <p className="text-slate-500">No available time slots for this date</p>
+                                                    <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                                        <Clock className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                                                        <p className="font-medium">All slots booked for this date</p>
+                                                        <p className="text-sm mt-1">Please try selecting another date</p>
+                                                    </div>
                                                 ) : (
                                                     <div className="grid grid-cols-3 gap-3 max-h-80 overflow-y-auto">
                                                         {availableSlots
@@ -426,7 +459,24 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                         </div>
                                         <div>
                                             <p className="text-sm text-slate-600 font-medium">Total Price</p>
-                                            <p className="font-bold text-indigo-600 text-2xl">${selectedService?.price}</p>
+                                            {selectedService?.discount && selectedService.discount > 0 ? (
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm text-slate-400 line-through">₹{selectedService.price}</span>
+                                                        <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                                            {selectedService.discount}% OFF
+                                                        </span>
+                                                    </div>
+                                                    <p className="font-bold text-emerald-600 text-2xl">
+                                                        ₹{(selectedService.price * (1 - selectedService.discount / 100)).toFixed(2)}
+                                                    </p>
+                                                    <p className="text-xs text-emerald-600 font-medium">
+                                                        You save ₹{(selectedService.price * (selectedService.discount / 100)).toFixed(2)}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <p className="font-bold text-indigo-600 text-2xl">₹{selectedService?.price}</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

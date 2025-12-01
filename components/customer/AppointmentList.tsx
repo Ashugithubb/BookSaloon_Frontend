@@ -115,7 +115,19 @@ export default function AppointmentList({ appointments, onUpdate, type }: Appoin
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        ${appointment.service.price}
+                                        {appointment.service.discount && appointment.service.discount > 0 ? (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-slate-400 line-through">₹{appointment.service.price}</span>
+                                                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                                    {appointment.service.discount}% OFF
+                                                </span>
+                                                <span className="text-emerald-600">
+                                                    ₹{(appointment.service.price * (1 - appointment.service.discount / 100)).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            `₹${appointment.service.price}`
+                                        )}
                                     </div>
                                 </div>
                             </div>

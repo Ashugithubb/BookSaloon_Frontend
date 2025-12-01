@@ -91,9 +91,12 @@ export default function BusinessDashboard() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center space-x-4">
-                            <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg">
+                            <a
+                                href="/"
+                                className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform cursor-pointer"
+                            >
                                 <Sparkles className="w-8 h-8 text-white" />
-                            </div>
+                            </a>
                             <div>
                                 <h1 className="text-4xl font-bold text-slate-900 mb-1">
                                     {business ? business.name : 'Business Dashboard'}

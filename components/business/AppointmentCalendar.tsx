@@ -10,7 +10,7 @@ interface AppointmentCalendarProps {
 export default function AppointmentCalendar({ businessId }: AppointmentCalendarProps) {
     const [appointments, setAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'cancelled'>('upcoming');
+    const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'completed' | 'cancelled'>('upcoming');
 
     // OTP Verification State
     const [showOtpModal, setShowOtpModal] = useState(false);
@@ -81,12 +81,45 @@ export default function AppointmentCalendar({ businessId }: AppointmentCalendarP
         }
     };
 
+    const handleMarkAsCompleted = async (appointmentId: string) => {
+        try {
+            await api.post(`/appointments/${appointmentId}/complete`);
+            fetchAppointments();
+        } catch (error) {
+            console.error('Failed to mark as completed', error);
+            alert('Failed to mark appointment as completed');
+        }
+    };
+
+    const handleMarkAsNoShow = async (appointmentId: string) => {
+        try {
+            await api.post(`/appointments/${appointmentId}/no-show`);
+            fetchAppointments();
+        } catch (error) {
+            console.error('Failed to mark as no-show', error);
+            alert('Failed to mark appointment as no-show');
+        }
+    };
+
     const getFilteredAndSortedAppointments = () => {
+        const now = new Date();
         let filtered = [];
         if (activeTab === 'upcoming') {
-            filtered = appointments.filter(a => ['PENDING', 'CONFIRMED'].includes(a.status));
+            // Only show future appointments that are PENDING or CONFIRMED
+            filtered = appointments.filter(a =>
+                ['PENDING', 'CONFIRMED'].includes(a.status) &&
+                new Date(a.date) >= now
+            );
             // Sort Ascending (Soonest first)
             filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        } else if (activeTab === 'past') {
+            // Show past appointments that are PENDING or CONFIRMED (need action)
+            filtered = appointments.filter(a =>
+                ['PENDING', 'CONFIRMED'].includes(a.status) &&
+                new Date(a.date) < now
+            );
+            // Sort Descending (Most recent first)
+            filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         } else if (activeTab === 'completed') {
             filtered = appointments.filter(a => ['COMPLETED', 'NO_SHOW'].includes(a.status));
             // Sort Descending (Newest first)
@@ -150,8 +183,8 @@ export default function AppointmentCalendar({ businessId }: AppointmentCalendarP
                                 key={tab}
                                 onClick={() => setActiveTab(tab as any)}
                                 className={`pb-3 text-sm font-medium transition-colors relative ${activeTab === tab
-                                        ? 'text-indigo-600'
-                                        : 'text-slate-500 hover:text-slate-700'
+                                    ? 'text-indigo-600'
+                                    : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
                                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -205,6 +238,23 @@ export default function AppointmentCalendar({ businessId }: AppointmentCalendarP
                                                         </>
                                                     )}
                                                 </div>
+                                                <div className="mt-1">
+                                                    {appointment.service.discount && appointment.service.discount > 0 ? (
+                                                        <div className="flex items-center gap-2 text-sm">
+                                                            <span className="text-slate-400 line-through">₹{appointment.service.price}</span>
+                                                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">
+                                                                {appointment.service.discount}% OFF
+                                                            </span>
+                                                            <span className="font-bold text-emerald-600">
+                                                                ₹{(appointment.service.price * (1 - appointment.service.discount / 100)).toFixed(2)}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-sm font-medium text-slate-600">
+                                                            ₹{appointment.service.price}
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 {/* Contact Actions */}
                                                 <div className="flex gap-2 mt-3">
@@ -239,7 +289,23 @@ export default function AppointmentCalendar({ businessId }: AppointmentCalendarP
                                                         </button>
                                                     </>
                                                 )}
-                                                {appointment.status === 'CONFIRMED' && (
+                                                {appointment.status === 'CONFIRMED' && activeTab === 'past' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleMarkAsCompleted(appointment.id)}
+                                                            className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
+                                                        >
+                                                            Complete
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleMarkAsNoShow(appointment.id)}
+                                                            className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                                                        >
+                                                            No Show
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {appointment.status === 'CONFIRMED' && activeTab === 'upcoming' && (
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusUpdate(appointment.id, 'COMPLETED')}

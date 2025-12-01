@@ -115,9 +115,28 @@ export default function ServiceList({ businessId }: ServiceListProps) {
                                 )}
 
                                 <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div className="flex items-center text-2xl font-bold text-slate-900">
-                                        <span className="text-sm text-slate-400 font-normal mr-1">$</span>
-                                        {service.price}
+                                    <div>
+                                        {service.discount && service.discount > 0 ? (
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm text-slate-400 line-through font-medium">
+                                                        ₹{service.price}
+                                                    </span>
+                                                    <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                                        {service.discount}% OFF
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center text-2xl font-bold text-emerald-600">
+                                                    <span className="text-sm text-emerald-500 font-normal mr-1">₹</span>
+                                                    {(service.price * (1 - service.discount / 100)).toFixed(2)}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center text-2xl font-bold text-slate-900">
+                                                <span className="text-sm text-slate-400 font-normal mr-1">₹</span>
+                                                {service.price}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

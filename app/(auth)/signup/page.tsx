@@ -56,7 +56,7 @@ export default function SignupPage() {
             // Login with the token received
             localStorage.setItem('token', data.token);
             // Force reload or redirect to dashboard
-            window.location.href = '/dashboard';
+            window.location.href = '/login';
         } catch (err: any) {
             setError(err.response?.data?.message || 'Verification failed');
         } finally {
@@ -139,7 +139,7 @@ export default function SignupPage() {
                                             type="text"
                                             required
                                             className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="John Doe"
+
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         />
@@ -151,7 +151,7 @@ export default function SignupPage() {
                                             type="email"
                                             required
                                             className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="john@example.com"
+
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         />
@@ -163,7 +163,6 @@ export default function SignupPage() {
                                             type="password"
                                             required
                                             className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="••••••••"
                                             value={formData.password}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                         />
@@ -175,7 +174,7 @@ export default function SignupPage() {
                                             type="tel"
                                             required
                                             className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="+1 (555) 000-0000"
+
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         />
@@ -231,7 +230,7 @@ export default function SignupPage() {
                                     type="text"
                                     required
                                     maxLength={6}
-                                    className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-center text-3xl tracking-[0.5em] font-mono focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-4 border-2 border-purple-300 rounded-lg text-center text-3xl tracking-[0.5em] font-mono text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-gray-300"
                                     placeholder="000000"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
