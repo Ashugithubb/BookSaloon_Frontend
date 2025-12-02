@@ -8,7 +8,9 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+import { Suspense } from 'react';
+
+function LoginForm() {
     const { login, googleLogin } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -186,5 +188,17 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }
