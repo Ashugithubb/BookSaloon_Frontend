@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, Store, ArrowRight, Sparkles } from 'lucide-react';
 
-export default function RoleSelectionPage() {
+import { Suspense } from 'react';
+
+function RoleSelectionContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const intent = searchParams.get('intent') || 'login'; // 'login' or 'signup'
@@ -108,5 +110,17 @@ export default function RoleSelectionPage() {
                 </motion.div>
             </div>
         </div>
+    );
+}
+
+export default function RoleSelectionPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        }>
+            <RoleSelectionContent />
+        </Suspense>
     );
 }
