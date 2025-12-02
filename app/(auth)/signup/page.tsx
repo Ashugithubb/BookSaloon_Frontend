@@ -1,18 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
 import api from '../../../lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SignupPage() {
     const { register, googleLogin, login } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [step, setStep] = useState<'register' | 'verify'>('register');
+    const [selectedRole, setSelectedRole] = useState<'customer' | 'professional'>('customer');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -23,6 +25,20 @@ export default function SignupPage() {
     const [otp, setOtp] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const roleParam = searchParams.get('role');
+        if (roleParam === 'professional') {
+            setSelectedRole('professional');
+            setFormData(prev => ({ ...prev, role: 'OWNER' }));
+        } else if (roleParam === 'customer') {
+            setSelectedRole('customer');
+            setFormData(prev => ({ ...prev, role: 'CUSTOMER' }));
+        } else {
+            // Redirect to role selection if no role specified
+            router.push('/role-selection');
+        }
+    }, [searchParams, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -68,11 +84,19 @@ export default function SignupPage() {
         setLoading(true);
         setError('');
 
+        console.log('🔍 Signup - selectedRole:', selectedRole);
+
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
+            const email = user.email || '';
+            const name = user.displayName || 'User';
+            const role = selectedRole === 'professional' ? 'OWNER' : 'CUSTOMER';
 
-            await googleLogin(user.email || '', user.displayName || 'User');
+            console.log('🔍 Signup - Computed role:', role, '(selectedRole was:', selectedRole, ')');
+            console.log('🔍 Signup - Calling googleLogin with:', { email, name, role });
+
+            await googleLogin(email, name, role);
         } catch (err: any) {
             console.error('Google sign-in error:', err);
             setError(err.message || 'Google sign-in failed');
@@ -95,7 +119,7 @@ export default function SignupPage() {
                         </h2>
                         <p className="mt-2 text-lg text-gray-600">
                             {step === 'register'
-                                ? 'Join thousands of happy users'
+                                ? `Join as ${selectedRole === 'professional' ? 'a professional' : 'a customer'}`
                                 : `We sent a code to ${formData.email}`}
                         </p>
                     </div>
@@ -179,32 +203,6 @@ export default function SignupPage() {
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         />
                                     </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">I want to</label>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, role: 'CUSTOMER' })}
-                                                className={`px-4 py-3 rounded-lg border text-center transition-all ${formData.role === 'CUSTOMER'
-                                                    ? 'border-purple-600 bg-purple-50 text-purple-700 font-medium'
-                                                    : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                Book Services
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, role: 'OWNER' })}
-                                                className={`px-4 py-3 rounded-lg border text-center transition-all ${formData.role === 'OWNER'
-                                                    ? 'border-purple-600 bg-purple-50 text-purple-700 font-medium'
-                                                    : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                Manage Business
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <button
@@ -261,7 +259,7 @@ export default function SignupPage() {
 
                     <p className="text-center text-gray-600">
                         Already have an account?{' '}
-                        <Link href="/login" className="text-purple-600 font-medium hover:text-purple-700">
+                        <Link href={`/login?role=${selectedRole}`} className="text-purple-600 font-medium hover:text-purple-700">
                             Sign in
                         </Link>
                     </p>

@@ -1,17 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
     const { login, googleLogin } = useAuth();
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<'customer' | 'professional'>('customer');
+
+    useEffect(() => {
+        const roleParam = searchParams.get('role');
+        if (roleParam === 'professional') {
+            setSelectedRole('professional');
+        } else if (roleParam === 'customer') {
+            setSelectedRole('customer');
+        } else {
+            // Redirect to role selection if no role specified
+            router.push('/role-selection');
+        }
+    }, [searchParams, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,8 +50,11 @@ export default function LoginPage() {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
+            const email = user.email || '';
+            const name = user.displayName || 'User';
+            const role = selectedRole === 'professional' ? 'OWNER' : 'CUSTOMER';
 
-            await googleLogin(user.email || '', user.displayName || 'User');
+            await googleLogin(email, name, role);
         } catch (err: any) {
             console.error('Google sign-in error:', err);
             setError(err.message || 'Google sign-in failed');
@@ -57,7 +76,7 @@ export default function LoginPage() {
                             Welcome back
                         </h2>
                         <p className="mt-2 text-lg text-gray-600">
-                            Sign in to your account to continue
+                            Sign in as {selectedRole === 'professional' ? 'a professional' : 'a customer'}
                         </p>
                     </div>
 
@@ -138,7 +157,7 @@ export default function LoginPage() {
                         <div className="text-center">
                             <p className="text-gray-600">
                                 Don't have an account?{' '}
-                                <Link href="/signup" className="font-medium text-purple-600 hover:text-purple-500">
+                                <Link href={`/signup?role=${selectedRole}`} className="font-medium text-purple-600 hover:text-purple-500">
                                     Sign up
                                 </Link>
                             </p>

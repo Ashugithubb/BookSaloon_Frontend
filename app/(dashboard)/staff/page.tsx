@@ -8,6 +8,7 @@ import {
     Calendar, Clock, User, Building2, LogOut, Sparkles,
     CheckCircle, XCircle, AlertCircle, Lock
 } from 'lucide-react';
+import NotificationBell from '../../../components/NotificationBell';
 
 export default function StaffDashboard() {
     const { user, logout } = useAuth();
@@ -200,16 +201,19 @@ export default function StaffDashboard() {
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={logout}
-                            className="group inline-flex items-center px-6 py-3 bg-white border-2 border-red-500 text-red-600 rounded-full hover:bg-red-50 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
-                        >
-                            <LogOut className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                            Logout
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <NotificationBell />
+                            <button
+                                onClick={logout}
+                                className="group inline-flex items-center px-6 py-3 bg-white border-2 border-red-500 text-red-600 rounded-full hover:bg-red-50 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+                            >
+                                <LogOut className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </header>
+            </header >
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Business Info Card */}
@@ -409,6 +413,6 @@ export default function StaffDashboard() {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }

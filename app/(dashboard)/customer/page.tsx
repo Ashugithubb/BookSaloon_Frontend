@@ -7,6 +7,7 @@ import api from '../../../lib/api';
 import BusinessCard from '../../../components/customer/BusinessCard';
 import Link from 'next/link';
 import { Search, Filter, X, Calendar, LogOut, Sparkles, TrendingUp, MapPin, Star } from 'lucide-react';
+import NotificationBell from '../../../components/NotificationBell';
 
 export default function CustomerDashboard() {
     const { user, logout } = useAuth();
@@ -149,14 +150,25 @@ export default function CustomerDashboard() {
                         >
                             {user ? (
                                 <>
-                                    <Link
-                                        href="/appointments"
-                                        className="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300 font-medium overflow-hidden"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <Calendar className="w-5 h-5 mr-2 relative z-10" />
-                                        <span className="relative z-10">My Appointments</span>
-                                    </Link>
+                                    {user.role === 'CUSTOMER' ? (
+                                        <Link
+                                            href="/appointments"
+                                            className="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300 font-medium overflow-hidden"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <Calendar className="w-5 h-5 mr-2 relative z-10" />
+                                            <span className="relative z-10">My Appointments</span>
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            href={user.role === 'OWNER' ? '/business' : user.role === 'STAFF' ? '/staff' : '/admin'}
+                                            className="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300 font-medium overflow-hidden"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <TrendingUp className="w-5 h-5 mr-2 relative z-10" />
+                                            <span className="relative z-10">Dashboard</span>
+                                        </Link>
+                                    )}
                                     <button
                                         onClick={logout}
                                         className="inline-flex items-center px-6 py-3 border-2 border-rose-500 text-rose-600 rounded-xl hover:bg-rose-50 transition-all duration-300 font-medium hover:shadow-lg hover:shadow-rose-500/20"

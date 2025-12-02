@@ -26,6 +26,19 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const getDashboardLink = (role?: string) => {
+    switch (role) {
+      case 'OWNER':
+        return '/business';
+      case 'STAFF':
+        return '/staff';
+      case 'ADMIN':
+        return '/admin';
+      default:
+        return '/customer';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -85,7 +98,7 @@ export default function HomePage() {
                         </div>
                         <div className="p-2">
                           <Link
-                            href={user.role === 'OWNER' ? '/business' : '/customer'}
+                            href={getDashboardLink(user.role)}
                             className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
                             onClick={() => setUserMenuOpen(false)}
                           >
@@ -109,11 +122,11 @@ export default function HomePage() {
                 </div>
               ) : (
                 <>
-                  <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-medium transition-colors">
+                  <Link href="/role-selection?intent=login" className="text-slate-700 hover:text-indigo-600 font-medium transition-colors">
                     Login
                   </Link>
                   <Link
-                    href="/signup"
+                    href="/role-selection?intent=signup"
                     className="bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
                   >
                     Get Started Free
@@ -168,7 +181,7 @@ export default function HomePage() {
                       </div>
                     </div>
                     <Link
-                      href={user.role === 'OWNER' ? '/business' : '/customer'}
+                      href={getDashboardLink(user.role)}
                       className="flex items-center gap-2 w-full bg-indigo-50 text-indigo-600 px-4 py-3 rounded-xl font-semibold mb-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -188,11 +201,11 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <>
-                    <Link href="/login" className="block text-slate-700 hover:text-indigo-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    <Link href="/role-selection?intent=login" className="block text-slate-700 hover:text-indigo-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
                       Login
                     </Link>
                     <Link
-                      href="/signup"
+                      href="/role-selection?intent=signup"
                       className="block text-center bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-6 py-3 rounded-full font-semibold"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -255,10 +268,10 @@ export default function HomePage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-12">
                   <Link
-                    href="/signup"
+                    href={user ? getDashboardLink(user.role) : "/role-selection?intent=signup"}
                     className="group relative bg-gradient-to-r from-indigo-600 to-rose-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center"
                   >
-                    Get Started Free
+                    {user ? 'Go to Dashboard' : 'Get Started Free'}
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
