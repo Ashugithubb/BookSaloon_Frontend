@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../../lib/api';
 import {
     Calendar, Clock, User, Building2, LogOut, Sparkles,
-    CheckCircle, XCircle, AlertCircle, Lock
+    CheckCircle, XCircle, AlertCircle, Lock, Home
 } from 'lucide-react';
 import NotificationBell from '../../../components/NotificationBell';
 
@@ -202,6 +203,9 @@ export default function StaffDashboard() {
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
+                            <Link href="/" className="p-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" title="Home">
+                                <Home className="w-6 h-6" />
+                            </Link>
                             <NotificationBell />
                             <button
                                 onClick={logout}

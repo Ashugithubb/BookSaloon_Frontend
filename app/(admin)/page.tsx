@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import Link from 'next/link';
+import { Home } from 'lucide-react';
 import api from '../../lib/api';
 
 export default function AdminDashboard() {
@@ -54,12 +56,17 @@ export default function AdminDashboard() {
                         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
                         <p className="text-sm text-gray-600">Welcome, {user?.name}</p>
                     </div>
-                    <button
-                        onClick={logout}
-                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                    >
-                        Logout
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors" title="Home">
+                            <Home className="w-6 h-6" />
+                        </Link>
+                        <button
+                            onClick={logout}
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </header>
 

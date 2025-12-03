@@ -9,7 +9,7 @@ import ReviewModal from '../../../components/customer/ReviewModal';
 import StaffProfileModal from '../../../components/customer/StaffProfileModal';
 import { useAuth } from '../../../context/AuthContext';
 import {
-    MapPin, Clock, DollarSign, Star, ChevronLeft, ChevronRight,
+    MapPin, Clock, Star, ChevronLeft, ChevronRight,
     Sparkles, Calendar, Users, Award, MessageCircle, ArrowLeft,
     Phone, Mail, Globe
 } from 'lucide-react';
@@ -404,14 +404,12 @@ export default function BusinessDetailPage() {
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-emerald-600">
-                                                        <DollarSign className="w-5 h-5" />
-                                                        <span className="text-2xl font-bold">{(service.price * (1 - service.discount / 100)).toFixed(2)}</span>
+                                                        <span className="text-2xl font-bold">₹{(service.price * (1 - service.discount / 100)).toFixed(2)}</span>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2 text-indigo-600">
-                                                    <DollarSign className="w-5 h-5" />
-                                                    <span className="text-2xl font-bold">{service.price}</span>
+                                                    <span className="text-2xl font-bold">₹{service.price}</span>
                                                 </div>
                                             )}
                                         </div>

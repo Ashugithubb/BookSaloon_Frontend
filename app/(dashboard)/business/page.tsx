@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import api from '../../../lib/api';
 import BusinessProfileForm from '../../../components/business/BusinessProfileForm';
@@ -11,7 +12,7 @@ import AppointmentCalendar from '../../../components/business/AppointmentCalenda
 import ImageUpload from '../../../components/business/ImageUpload';
 import {
     Building2, Image as ImageIcon, Scissors, Users, Calendar,
-    LogOut, Sparkles, TrendingUp, DollarSign, Clock, Star
+    LogOut, Sparkles, TrendingUp, DollarSign, Clock, Star, Home
 } from 'lucide-react';
 import NotificationBell from '../../../components/NotificationBell';
 
@@ -108,6 +109,9 @@ export default function BusinessDashboard() {
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
+                            <Link href="/" className="p-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" title="Home">
+                                <Home className="w-6 h-6" />
+                            </Link>
                             <NotificationBell />
                             <button
                                 onClick={logout}

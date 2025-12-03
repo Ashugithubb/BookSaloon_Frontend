@@ -6,7 +6,7 @@ import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 import BusinessCard from '../../../components/customer/BusinessCard';
 import Link from 'next/link';
-import { Search, Filter, X, Calendar, LogOut, Sparkles, TrendingUp, MapPin, Star } from 'lucide-react';
+import { Search, Filter, X, Calendar, LogOut, Sparkles, TrendingUp, MapPin, Star, Home } from 'lucide-react';
 import NotificationBell from '../../../components/NotificationBell';
 
 export default function CustomerDashboard() {
@@ -168,6 +168,13 @@ export default function CustomerDashboard() {
                             transition={{ delay: 0.4 }}
                             className="flex flex-wrap gap-3"
                         >
+                            <Link
+                                href="/"
+                                className="inline-flex items-center px-6 py-3 border-2 border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all duration-300 font-medium hover:border-indigo-600 hover:text-indigo-600"
+                            >
+                                <Home className="w-5 h-5 mr-2" />
+                                Home
+                            </Link>
                             {user ? (
                                 <>
                                     {user.role === 'CUSTOMER' ? (
