@@ -47,6 +47,7 @@ export default function CustomerDashboard() {
                 (b) =>
                     b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     b.description?.toLowerCase().includes(searchTerm.toLowerCase())
+
             );
         }
 
@@ -56,7 +57,7 @@ export default function CustomerDashboard() {
 
         if (selectedDate) {
             const date = new Date(selectedDate);
-            const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, 
 
             filtered = filtered.filter((b) => {
                 if (!b.hours || !Array.isArray(b.hours)) return false;
