@@ -16,6 +16,8 @@ export default function CustomerDashboard() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedDate, setSelectedDate] = useState('');
+    const [locationSearch, setLocationSearch] = useState('');
 
     useEffect(() => {
         fetchBusinesses();
@@ -23,7 +25,7 @@ export default function CustomerDashboard() {
 
     useEffect(() => {
         filterBusinesses();
-    }, [searchTerm, selectedCategory, businesses]);
+    }, [searchTerm, selectedCategory, selectedDate, locationSearch, businesses]);
 
     const fetchBusinesses = async () => {
         try {
@@ -50,6 +52,23 @@ export default function CustomerDashboard() {
 
         if (selectedCategory) {
             filtered = filtered.filter((b) => b.category === selectedCategory);
+        }
+
+        if (selectedDate) {
+            const date = new Date(selectedDate);
+            const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+            filtered = filtered.filter((b) => {
+                if (!b.hours || !Array.isArray(b.hours)) return false;
+                const hoursForDay = b.hours.find((h: any) => h.dayOfWeek === dayOfWeek);
+                return hoursForDay && hoursForDay.isOpen;
+            });
+        }
+
+        if (locationSearch) {
+            filtered = filtered.filter((b) =>
+                b.address?.toLowerCase().includes(locationSearch.toLowerCase())
+            );
         }
 
         setFilteredBusinesses(filtered);
@@ -219,15 +238,15 @@ export default function CustomerDashboard() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                Search by name or description
+                                Search by name
                             </label>
                             <div className="relative group">
                                 <input
                                     type="text"
-                                    placeholder="Try 'Hair Salon' or 'Spa'..."
+                                    placeholder="Try 'Hair Salon'..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white/50 backdrop-blur-sm text-slate-900 placeholder-slate-400"
@@ -268,10 +287,48 @@ export default function CustomerDashboard() {
                                 </div>
                             </div>
                         </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                Filter by Date
+                            </label>
+                            <div className="relative group">
+                                <input
+                                    type="date"
+                                    value={selectedDate}
+                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all bg-white/50 backdrop-blur-sm text-slate-900 placeholder-slate-400 cursor-pointer"
+                                />
+                                <Calendar className="absolute left-4 top-4 w-5 h-5 text-slate-400 group-focus-within:text-rose-600 transition-colors pointer-events-none" />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                Filter by Location
+                            </label>
+                            <div className="relative group">
+                                <input
+                                    type="text"
+                                    placeholder="City, Zip, or Address..."
+                                    value={locationSearch}
+                                    onChange={(e) => setLocationSearch(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white/50 backdrop-blur-sm text-slate-900 placeholder-slate-400"
+                                />
+                                <MapPin className="absolute left-4 top-4 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                {locationSearch && (
+                                    <button
+                                        onClick={() => setLocationSearch('')}
+                                        className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     <AnimatePresence>
-                        {(searchTerm || selectedCategory) && (
+                        {(searchTerm || selectedCategory || selectedDate || locationSearch) && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -286,6 +343,8 @@ export default function CustomerDashboard() {
                                     onClick={() => {
                                         setSearchTerm('');
                                         setSelectedCategory('');
+                                        setSelectedDate('');
+                                        setLocationSearch('');
                                     }}
                                     className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-2 hover:gap-3 transition-all"
                                 >
