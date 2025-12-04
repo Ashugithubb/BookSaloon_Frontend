@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scissors, Clock, DollarSign, FileText, Check, X, AlertCircle, Loader2 } from 'lucide-react';
+import { Scissors, Clock, IndianRupee, FileText, Check, X, AlertCircle, Loader2 } from 'lucide-react';
 import api from '../../lib/api';
 
 interface ServiceFormProps {
@@ -169,7 +169,7 @@ export default function ServiceForm({ businessId, service, onClose }: ServiceFor
                     {/* Price */}
                     <div className="space-y-2">
                         <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700">
-                            <DollarSign className="w-4 h-4 text-rose-600" />
+                            <IndianRupee className="w-4 h-4 text-rose-600" />
                             <span>Price *</span>
                         </label>
                         <div className="relative group">
