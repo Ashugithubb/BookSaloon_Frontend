@@ -86,7 +86,8 @@ export default function NotificationBell() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-[90vw] sm:w-96 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+                        className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-screen sm:w-96 max-w-[calc(100vw-1rem)] sm:max-w-md bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+                        style={{ marginLeft: '-0.5rem' }}
                     >
                         {/* Header */}
                         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -120,17 +121,17 @@ export default function NotificationBell() {
                                 recentNotifications.map((notification) => (
                                     <div
                                         key={notification.id}
-                                        className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification.read ? 'bg-purple-50' : ''
+                                        className={`p-3 sm:p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification.read ? 'bg-purple-50' : ''
                                             }`}
                                     >
-                                        <div className="flex items-start gap-3">
-                                            <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                                                <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                                        <div className="flex items-start gap-2 sm:gap-3">
+                                            <span className="text-xl sm:text-2xl flex-shrink-0">{getNotificationIcon(notification.type)}</span>
+                                            <div className="flex-1 min-w-0 overflow-hidden">
+                                                <p className="text-sm font-medium text-gray-900 break-words">{notification.title}</p>
+                                                <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words line-clamp-2">{notification.message}</p>
                                                 <p className="text-xs text-gray-400 mt-1">{formatTime(notification.createdAt)}</p>
                                             </div>
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex items-center gap-1 flex-shrink-0">
                                                 {!notification.read && (
                                                     <button
                                                         onClick={() => markAsRead(notification.id)}

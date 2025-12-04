@@ -26,6 +26,7 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [geocoding, setGeocoding] = useState(false);
 
     useEffect(() => {
         if (business) {
@@ -48,6 +49,47 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
             });
         }
     }, [business]);
+
+    const fetchCoordinates = async () => {
+        if (!formData.address) {
+            setError('Please enter an address first');
+            return;
+        }
+
+        setGeocoding(true);
+        setError('');
+
+        try {
+            // Using Photon API (free, no API key required, no CORS issues)
+            // Based on OpenStreetMap data
+            const response = await fetch(
+                `https://photon.komoot.io/api/?q=${encodeURIComponent(formData.address)}&limit=1`
+            );
+
+            if (!response.ok) {
+                throw new Error('Geocoding service unavailable');
+            }
+
+            const data = await response.json();
+
+            if (data && data.features && data.features.length > 0) {
+                const coordinates = data.features[0].geometry.coordinates;
+                setFormData({
+                    ...formData,
+                    longitude: coordinates[0].toString(),
+                    latitude: coordinates[1].toString()
+                });
+                setError('');
+            } else {
+                setError('Could not find coordinates for this address. Please try a more specific address or enter coordinates manually.');
+            }
+        } catch (err) {
+            console.error('Geocoding error:', err);
+            setError('Geocoding service is currently unavailable. Please enter coordinates manually or try again later.');
+        } finally {
+            setGeocoding(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -97,13 +139,23 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
 
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Address</label>
-                <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400"
-                    placeholder="123 Main St, City, State"
-                />
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        className="flex-1 block px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400"
+                        placeholder="123 Main St, City, State"
+                    />
+                    <button
+                        type="button"
+                        onClick={fetchCoordinates}
+                        disabled={geocoding || !formData.address}
+                        className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors whitespace-nowrap text-sm font-medium"
+                    >
+                        {geocoding ? 'Loading...' : 'Get Coordinates'}
+                    </button>
+                </div>
             </div>
 
             <div>
@@ -117,7 +169,7 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Latitude (Optional)</label>
                     <input
@@ -140,6 +192,16 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                         placeholder="e.g. -74.0060"
                     />
                 </div>
+                {formData.latitude && formData.longitude && (
+                    <div className="col-span-1 sm:col-span-2">
+                        <p className="text-xs text-green-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            Coordinates set successfully
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div>
