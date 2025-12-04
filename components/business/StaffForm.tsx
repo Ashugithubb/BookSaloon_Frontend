@@ -77,7 +77,7 @@ export default function StaffForm({ businessId, staff, onClose }: StaffFormProps
                 const { data } = await api.post(`/businesses/${businessId}/staff`, formData);
                 staffId = data.id;
                 invitationLink = data.invitationLink;
-                emailSent = data.emailSent;
+                emailSent = data.emailSent || data.emailQueued;
             }
 
             // 2. Upload Image if selected
@@ -94,7 +94,7 @@ export default function StaffForm({ businessId, staff, onClose }: StaffFormProps
                 const fullLink = `${window.location.origin}${invitationLink}`;
 
                 if (emailSent) {
-                    alert(`✅ Staff member added!\n\n📧 Invitation email sent to: ${formData.email}\n\nThe staff member will receive an email with the invitation link.\n\nBackup link (if needed):\n${fullLink}`);
+                    alert(`✅ Staff member added!\n\n📧 Invitation email is being sent to: ${formData.email}\n\nThe staff member will receive an email with the invitation link shortly.\n\nBackup link (if needed):\n${fullLink}`);
                 } else {
                     alert(`⚠️ Staff member added, but email could not be sent.\n\nPlease share this invitation link with them manually:\n\n${fullLink}\n\nNote: Make sure email is configured in backend .env file:\nMAIL_USER=your-email@gmail.com\nMAIL_PASS=your-app-password`);
                 }
