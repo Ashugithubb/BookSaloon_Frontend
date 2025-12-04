@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Sparkles, Calendar, Star, Users, Shield, Zap,
   Clock, MapPin, Heart, TrendingUp, Award, CheckCircle,
-  Menu, X, ArrowRight, ChevronDown, LogOut, LayoutDashboard
+  Menu, X, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, LogOut, LayoutDashboard
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
@@ -321,7 +321,7 @@ export default function HomePage() {
                 <motion.div
                   animate={{ y: [0, -20, 0] }}
                   transition={{ duration: 4, repeat: Infinity }}
-                  className="absolute top-10 -left-10 bg-white p-4 rounded-2xl shadow-xl"
+                  className="absolute top-10 left-2 sm:left-0 xl:-left-10 bg-white p-4 rounded-2xl shadow-xl"
                 >
                   <div className="flex items-center space-x-3">
                     <Calendar className="w-8 h-8 text-indigo-600" />
@@ -334,7 +334,7 @@ export default function HomePage() {
                 <motion.div
                   animate={{ y: [0, 20, 0] }}
                   transition={{ duration: 5, repeat: Infinity }}
-                  className="absolute bottom-10 -right-10 bg-white p-4 rounded-2xl shadow-xl"
+                  className="absolute bottom-10 right-2 sm:right-0 xl:-right-10 bg-white p-4 rounded-2xl shadow-xl"
                 >
                   <div className="flex items-center space-x-2">
                     <Star className="w-6 h-6 text-amber-500 fill-current" />
@@ -627,6 +627,10 @@ function StatsSection() {
 
 // Testimonials Section
 function TestimonialsSection() {
+  const [scrollContainerRef, setScrollContainerRef] = useState<HTMLDivElement | null>(null);
+  const [showPrevButton, setShowPrevButton] = useState(false);
+  const [showNextButton, setShowNextButton] = useState(true);
+
   const testimonials = [
     {
       name: 'Sarah Johnson',
@@ -649,10 +653,92 @@ function TestimonialsSection() {
       rating: 5,
       text: 'Love being able to read reviews and choose my stylist. The reminders are super helpful too!',
     },
+    {
+      name: 'Jessica Martinez',
+      role: 'Busy Professional',
+      image: '👩‍💼',
+      rating: 5,
+      text: 'Perfect for my busy schedule! I can book appointments anytime, anywhere. Game changer!',
+    },
+    {
+      name: 'David Wilson',
+      role: 'Salon Manager',
+      image: '👨‍💼',
+      rating: 5,
+      text: 'Our salon has seen a 40% increase in bookings since joining. The interface is intuitive and customers love it!',
+    },
+    {
+      name: 'Sophia Anderson',
+      role: 'Fashion Blogger',
+      image: '💁‍♀️',
+      rating: 5,
+      text: 'I travel a lot and this app helps me find the best salons wherever I go. Absolutely fantastic!',
+    },
+    {
+      name: 'James Taylor',
+      role: 'Fitness Coach',
+      image: '🧔',
+      rating: 5,
+      text: 'Quick, reliable, and professional. I never have to worry about missing my grooming appointments anymore.',
+    },
+    {
+      name: 'Olivia Brown',
+      role: 'Makeup Artist',
+      image: '💄',
+      rating: 5,
+      text: 'The best booking platform I\'ve used! Clean interface, easy navigation, and great customer support.',
+    },
+    {
+      name: 'Daniel Lee',
+      role: 'Entrepreneur',
+      image: '👨‍💻',
+      rating: 5,
+      text: 'Saves me so much time! No more phone calls or waiting on hold. Just book and go!',
+    },
   ];
 
+  // Check scroll position and update button visibility
+  const checkScrollPosition = () => {
+    if (scrollContainerRef) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef;
+
+      // Show prev button if not at the start
+      setShowPrevButton(scrollLeft > 0);
+
+      // Show next button if not at the end (with small tolerance for rounding)
+      setShowNextButton(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  // Add scroll event listener
+  useEffect(() => {
+    if (scrollContainerRef) {
+      checkScrollPosition(); // Check initial position
+      scrollContainerRef.addEventListener('scroll', checkScrollPosition);
+
+      // Also check on window resize
+      window.addEventListener('resize', checkScrollPosition);
+
+      return () => {
+        scrollContainerRef.removeEventListener('scroll', checkScrollPosition);
+        window.removeEventListener('resize', checkScrollPosition);
+      };
+    }
+  }, [scrollContainerRef]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    const container = scrollContainerRef;
+    if (container) {
+      const scrollAmount = 400;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <section id="testimonials" className="py-24 bg-slate-50">
+    <section id="testimonials" className="py-24 bg-slate-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -671,33 +757,87 @@ function TestimonialsSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
+        {/* Scrollable Container with Navigation */}
+        <div className="relative">
+          {/* Previous Button */}
+          {showPrevButton && (
+            <button
+              onClick={() => scroll('left')}
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 text-slate-700 hover:text-white rounded-full items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-slate-200 hover:border-transparent"
+              aria-label="Previous reviews"
             >
-              <div className="flex items-center mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-amber-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-slate-700 text-lg mb-6 leading-relaxed">"{testimonial.text}"</p>
-              <div className="flex items-center">
-                <div className="text-4xl mr-4">{testimonial.image}</div>
-                <div>
-                  <div className="font-semibold text-slate-900">{testimonial.name}</div>
-                  <div className="text-sm text-slate-600">{testimonial.role}</div>
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Next Button */}
+          {showNextButton && (
+            <button
+              onClick={() => scroll('right')}
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 text-slate-700 hover:text-white rounded-full items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-slate-200 hover:border-transparent"
+              aria-label="Next reviews"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+
+          <div
+            ref={setScrollContainerRef}
+            className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide hover:scrollbar-default scroll-smooth"
+          >
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="flex-shrink-0 w-[340px] sm:w-[380px] snap-center"
+              >
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all h-full hover:-translate-y-1">
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-amber-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-slate-700 text-lg mb-6 leading-relaxed">"{testimonial.text}"</p>
+                  <div className="flex items-center">
+                    <div className="text-4xl mr-4">{testimonial.image}</div>
+                    <div>
+                      <div className="font-semibold text-slate-900">{testimonial.name}</div>
+                      <div className="text-sm text-slate-600">{testimonial.role}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-default::-webkit-scrollbar {
+          height: 8px;
+        }
+        .scrollbar-default::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 10px;
+        }
+        .scrollbar-default::-webkit-scrollbar-thumb {
+          background: linear-gradient(to right, #4f46e5, #ec4899);
+          border-radius: 10px;
+        }
+        .scrollbar-default::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to right, #4338ca, #db2777);
+        }
+      `}</style>
     </section>
   );
 }

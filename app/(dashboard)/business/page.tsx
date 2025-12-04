@@ -194,9 +194,9 @@ export default function BusinessDashboard() {
                                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                                 />
                                             )}
-                                            <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-indigo-600' : 'text-slate-500'
+                                            <tab.icon className={`relative z-10 w-5 h-5 ${activeTab === tab.id ? 'text-indigo-600' : 'text-slate-500'
                                                 }`} />
-                                            <span className={activeTab === tab.id ? 'text-indigo-600' : 'text-slate-600'}>
+                                            <span className={`relative z-10 ${activeTab === tab.id ? 'text-indigo-600' : 'text-slate-600'}`}>
                                                 {tab.label}
                                             </span>
                                         </button>

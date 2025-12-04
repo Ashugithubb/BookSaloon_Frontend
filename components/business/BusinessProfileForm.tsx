@@ -162,8 +162,8 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                 <h3 className="text-lg font-medium text-slate-900 mb-4">Business Hours</h3>
                 <div className="space-y-4">
                     {formData.hours.map((hour, index) => (
-                        <div key={hour.dayOfWeek} className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                            <div className="w-24 font-medium text-slate-700">
+                        <div key={hour.dayOfWeek} className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <div className="w-full md:w-24 font-medium text-slate-700">
                                 {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][hour.dayOfWeek]}
                             </div>
 
@@ -183,7 +183,7 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                             </label>
 
                             {hour.isOpen && (
-                                <div className="flex items-center gap-2 ml-auto">
+                                <div className="flex items-center gap-2 w-full md:w-auto md:ml-auto">
                                     <input
                                         type="time"
                                         value={hour.startTime}
@@ -192,7 +192,7 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                                             newHours[index].startTime = e.target.value;
                                             setFormData({ ...formData, hours: newHours });
                                         }}
-                                        className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-900"
+                                        className="flex-1 md:flex-none px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-900"
                                     />
                                     <span className="text-slate-500">-</span>
                                     <input
@@ -203,7 +203,7 @@ export default function BusinessProfileForm({ business, onSuccess }: BusinessPro
                                             newHours[index].endTime = e.target.value;
                                             setFormData({ ...formData, hours: newHours });
                                         }}
-                                        className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-900"
+                                        className="flex-1 md:flex-none px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 text-slate-900"
                                     />
                                 </div>
                             )}
