@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://booksaloon-backend.onrender.com/api', // backend url
+    baseURL: 'http://localhost:3001/api', // LOCAL backend for development
     headers: {
         'Content-Type': 'application/json',
     },
 });
-// Add a request interceptor to add the auth token to headers
+
 api.interceptors.request.use(
     (config) => {
         if (typeof window !== 'undefined') {
@@ -16,7 +16,6 @@ api.interceptors.request.use(
             }
         }
 
-        // Don't set Content-Type for FormData - let browser handle it
         if (config.data instanceof FormData) {
             delete config.headers['Content-Type'];
         }
