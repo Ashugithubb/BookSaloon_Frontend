@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:3001/api', // LOCAL backend for development
+    baseURL: 'https://booksaloon-backend.onrender.com/api', // backend url
     headers: {
         'Content-Type': 'application/json',
     },
