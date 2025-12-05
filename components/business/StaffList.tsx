@@ -187,7 +187,7 @@ export default function StaffList({ businessId }: StaffListProps) {
                                     )}
                                 </div>
 
-                                <div className="pt-4 mt-4 border-t border-slate-100 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="pt-4 mt-4 border-t border-slate-100 flex justify-end gap-2 opacity-100 group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleEdit(member)}
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
