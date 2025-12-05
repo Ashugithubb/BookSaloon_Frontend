@@ -253,22 +253,22 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                 )}
 
                                 <div className="space-y-3">
-                                    {/* Show 'No Preference' only if service has no assigned staff */}
-                                    {(!selectedService?.assignedStaff || selectedService.assignedStaff.length === 0) && (
-                                        <motion.div
-                                            whileHover={{ scale: 1.02 }}
-                                            onClick={() => {
-                                                setSelectedStaff(null);
-                                                setStep(3);
-                                            }}
-                                            className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${!selectedStaff
-                                                ? 'border-indigo-600 bg-indigo-50'
-                                                : 'border-slate-200 hover:border-indigo-300 bg-white'
-                                                }`}
-                                        >
-                                            <p className="font-semibold text-slate-900">No Preference - Any Available Stylist</p>
-                                        </motion.div>
-                                    )}
+                                    {/* Always show 'No Preference' option */}
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        onClick={() => {
+                                            setSelectedStaff(null);
+                                            setStep(3);
+                                        }}
+                                        className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${!selectedStaff
+                                            ? 'border-indigo-600 bg-indigo-50'
+                                            : 'border-slate-200 hover:border-indigo-300 bg-white'
+                                            }`}
+                                    >
+                                        <p className="font-semibold text-slate-900">No Preference - Any Available Stylist</p>
+                                        <p className="text-sm text-slate-600 mt-1">Let the salon choose the best available stylist</p>
+                                    </motion.div>
+
 
                                     {/* Filter staff based on service assignment */}
                                     {(() => {
