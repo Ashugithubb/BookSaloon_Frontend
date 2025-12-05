@@ -1,12 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:3001/api',
+    baseURL: 'https://booksaloon-backend.onrender.com/api', // backend url
     headers: {
         'Content-Type': 'application/json',
     },
 });
-
 // Add a request interceptor to add the auth token to headers
 api.interceptors.request.use(
     (config) => {
