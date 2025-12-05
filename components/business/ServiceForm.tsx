@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scissors, Clock, IndianRupee, FileText, Check, X, AlertCircle, Loader2 } from 'lucide-react';
+import { Scissors, Clock, IndianRupee, FileText, Check, X, AlertCircle, Loader2, Users } from 'lucide-react';
 import api from '../../lib/api';
 
 interface ServiceFormProps {
@@ -21,6 +21,13 @@ export default function ServiceForm({ businessId, service, onClose }: ServiceFor
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [staff, setStaff] = useState<any[]>([]);
+    const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
+    const [loadingStaff, setLoadingStaff] = useState(false);
+
+    useEffect(() => {
+        fetchStaff();
+    }, [businessId]);
 
     useEffect(() => {
         if (service) {
@@ -31,8 +38,42 @@ export default function ServiceForm({ businessId, service, onClose }: ServiceFor
                 price: service.price?.toString() || '',
                 discount: service.discount?.toString() || '',
             });
+
+            // Set initially selected staff
+            if (service.assignedStaff) {
+                const staffIds = service.assignedStaff.map((as: any) => as.staffId);
+                setSelectedStaffIds(staffIds);
+            }
         }
     }, [service]);
+
+    const fetchStaff = async () => {
+        setLoadingStaff(true);
+        try {
+            const { data } = await api.get(`/businesses/${businessId}/staff`);
+            setStaff(data);
+        } catch (err) {
+            console.error('Failed to fetch staff:', err);
+        } finally {
+            setLoadingStaff(false);
+        }
+    };
+
+    const toggleStaffSelection = (staffId: string) => {
+        setSelectedStaffIds(prev =>
+            prev.includes(staffId)
+                ? prev.filter(id => id !== staffId)
+                : [...prev, staffId]
+        );
+    };
+
+    const selectAllStaff = () => {
+        setSelectedStaffIds(staff.map(s => s.id));
+    };
+
+    const deselectAllStaff = () => {
+        setSelectedStaffIds([]);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,10 +81,15 @@ export default function ServiceForm({ businessId, service, onClose }: ServiceFor
         setError('');
 
         try {
+            const payload = {
+                ...formData,
+                staffIds: selectedStaffIds
+            };
+
             if (service) {
-                await api.put(`/services/${service.id}`, formData);
+                await api.put(`/services/${service.id}`, payload);
             } else {
-                await api.post(`/businesses/${businessId}/services`, formData);
+                await api.post(`/businesses/${businessId}/services`, payload);
             }
             onClose();
         } catch (err: any) {
@@ -215,6 +261,95 @@ export default function ServiceForm({ businessId, service, onClose }: ServiceFor
                         </span>
                     </div>
                     <p className="text-xs text-slate-500">Enter discount percentage (0-100)</p>
+                </div>
+
+                {/* Staff Assignment Section */}
+                <div className="space-y-3 pt-4 border-t-2 border-slate-200">
+                    <div className="flex items-center justify-between">
+                        <label className="flex items-center space-x-2 text-sm font-semibold text-slate-700">
+                            <Users className="w-4 h-4 text-indigo-600" />
+                            <span>Assign Staff (Optional)</span>
+                        </label>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={selectAllStaff}
+                                className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                            >
+                                Select All
+                            </button>
+                            <span className="text-xs text-slate-400">|</span>
+                            <button
+                                type="button"
+                                onClick={deselectAllStaff}
+                                className="text-xs text-slate-600 hover:text-slate-700 font-medium"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p className="text-xs text-blue-700">
+                            <strong>Note:</strong> If no staff are selected, all staff can provide this service.
+                            Select specific staff to restrict who can offer this service.
+                        </p>
+                    </div>
+
+                    {loadingStaff ? (
+                        <div className="flex items-center justify-center py-8 text-slate-500">
+                            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                            Loading staff...
+                        </div>
+                    ) : staff.length === 0 ? (
+                        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                            <Users className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                            <p className="font-medium">No staff members found</p>
+                            <p className="text-sm mt-1">Add staff to your business first</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                            {staff.map((staffMember) => (
+                                <label
+                                    key={staffMember.id}
+                                    className={`flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${selectedStaffIds.includes(staffMember.id)
+                                            ? 'border-indigo-600 bg-indigo-50'
+                                            : 'border-slate-200 hover:border-indigo-300 bg-white'
+                                        }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedStaffIds.includes(staffMember.id)}
+                                        onChange={() => toggleStaffSelection(staffMember.id)}
+                                        className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                    {staffMember.image ? (
+                                        <img
+                                            src={staffMember.image.startsWith('http') ? staffMember.image : `http://localhost:3001${staffMember.image}`}
+                                            alt={staffMember.name}
+                                            className="w-10 h-10 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">
+                                            {staffMember.name.charAt(0)}
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-slate-900">{staffMember.name}</p>
+                                        {staffMember.title && (
+                                            <p className="text-xs text-slate-500">{staffMember.title}</p>
+                                        )}
+                                    </div>
+                                </label>
+                            ))}
+                        </div>
+                    )}
+
+                    {selectedStaffIds.length > 0 && (
+                        <p className="text-xs text-indigo-600 font-medium">
+                            {selectedStaffIds.length} staff member{selectedStaffIds.length !== 1 ? 's' : ''} selected
+                        </p>
+                    )}
                 </div>
 
                 {/* Price Calculation Display */}

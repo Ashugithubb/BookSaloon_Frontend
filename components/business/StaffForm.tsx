@@ -22,8 +22,15 @@ export default function StaffForm({ businessId, staff, onClose }: StaffFormProps
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [services, setServices] = useState<any[]>([]);
+    const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+    const [loadingServices, setLoadingServices] = useState(false);
 
     const [languageInput, setLanguageInput] = useState('');
+
+    useEffect(() => {
+        fetchServices();
+    }, [businessId]);
 
     useEffect(() => {
         if (staff) {
@@ -38,8 +45,42 @@ export default function StaffForm({ businessId, staff, onClose }: StaffFormProps
             if (staff.image) {
                 setPreviewUrl(staff.image.startsWith('http') ? staff.image : `http://localhost:3001${staff.image}`);
             }
+
+            // Set initially selected services
+            if (staff.assignedServices) {
+                const serviceIds = staff.assignedServices.map((as: any) => as.serviceId);
+                setSelectedServiceIds(serviceIds);
+            }
         }
     }, [staff]);
+
+    const fetchServices = async () => {
+        setLoadingServices(true);
+        try {
+            const { data } = await api.get(`/businesses/${businessId}/services`);
+            setServices(data);
+        } catch (err) {
+            console.error('Failed to fetch services:', err);
+        } finally {
+            setLoadingServices(false);
+        }
+    };
+
+    const toggleServiceSelection = (serviceId: string) => {
+        setSelectedServiceIds(prev =>
+            prev.includes(serviceId)
+                ? prev.filter(id => id !== serviceId)
+                : [...prev, serviceId]
+        );
+    };
+
+    const selectAllServices = () => {
+        setSelectedServiceIds(services.map(s => s.id));
+    };
+
+    const deselectAllServices = () => {
+        setSelectedServiceIds([]);
+    };
 
     const addLanguage = () => {
         if (languageInput.trim() && !formData.languages.includes(languageInput.trim())) {
@@ -70,11 +111,19 @@ export default function StaffForm({ businessId, staff, onClose }: StaffFormProps
             let invitationLink = null;
             let emailSent = false;
 
+            const payload = {
+                ...formData,
+                serviceIds: selectedServiceIds
+            };
+
+            console.log('🔧 StaffForm - Sending payload:', payload);
+            console.log('🔧 StaffForm - Selected service IDs:', selectedServiceIds);
+
             // 1. Create or Update Staff Details
             if (staff) {
-                await api.put(`/staff/${staff.id}`, formData);
+                await api.put(`/staff/${staff.id}`, payload);
             } else {
-                const { data } = await api.post(`/businesses/${businessId}/staff`, formData);
+                const { data } = await api.post(`/businesses/${businessId}/staff`, payload);
                 staffId = data.id;
                 invitationLink = data.invitationLink;
                 emailSent = data.emailSent || data.emailQueued;
@@ -242,6 +291,84 @@ export default function StaffForm({ businessId, staff, onClose }: StaffFormProps
                             </span>
                         ))}
                     </div>
+                )}
+            </div>
+
+            {/* Service Assignment Section */}
+            <div className="space-y-3 pt-4 border-t-2 border-slate-200">
+                <div className="flex items-center justify-between">
+                    <label className="block text-sm font-semibold text-slate-700">
+                        Assign Services (Optional)
+                    </label>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={selectAllServices}
+                            className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                        >
+                            Select All
+                        </button>
+                        <span className="text-xs text-slate-400">|</span>
+                        <button
+                            type="button"
+                            onClick={deselectAllServices}
+                            className="text-xs text-slate-600 hover:text-slate-700 font-medium"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-xs text-blue-700">
+                        <strong>Note:</strong> Select the services this staff member will provide.
+                        If no services are selected, they can provide all services.
+                    </p>
+                </div>
+
+                {loadingServices ? (
+                    <div className="flex items-center justify-center py-8 text-slate-500">
+                        <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-2" />
+                        Loading services...
+                    </div>
+                ) : services.length === 0 ? (
+                    <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                        <p className="font-medium">No services available</p>
+                        <p className="text-sm mt-1">Create services first to assign them to staff</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                        {services.map((service) => (
+                            <label
+                                key={service.id}
+                                className={`flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${selectedServiceIds.includes(service.id)
+                                    ? 'border-purple-600 bg-purple-50'
+                                    : 'border-slate-200 hover:border-purple-300 bg-white'
+                                    }`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={selectedServiceIds.includes(service.id)}
+                                    onChange={() => toggleServiceSelection(service.id)}
+                                    className="w-5 h-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500"
+                                />
+                                <div className="flex-1">
+                                    <p className="font-semibold text-slate-900">{service.name}</p>
+                                    <div className="flex items-center gap-3 mt-1">
+                                        <span className="text-xs text-slate-600">
+                                            ₹{service.price} • {service.duration} min
+                                        </span>
+                                    </div>
+                                </div>
+                            </label>
+                        ))}
+                    </div>
+                )}
+
+                {selectedServiceIds.length > 0 && (
+                    <p className="text-xs text-purple-600 font-medium">
+                        {selectedServiceIds.length} service{selectedServiceIds.length !== 1 ? 's' : ''} selected
+                    </p>
                 )}
             </div>
 

@@ -242,70 +242,112 @@ export default function BookingModal({ business, onClose }: BookingModalProps) {
                                 exit={{ opacity: 0, x: -20 }}
                             >
                                 <h3 className="text-2xl font-bold text-slate-900 mb-6">Choose Your Stylist</h3>
+
+                                {/* Helper message about staff availability */}
+                                {selectedService?.assignedStaff && selectedService.assignedStaff.length > 0 && (
+                                    <div className="mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-xl">
+                                        <p className="text-sm text-indigo-700">
+                                            <strong>Note:</strong> Only staff specialized in {selectedService.name} are shown below.
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div className="space-y-3">
-                                    <motion.div
-                                        whileHover={{ scale: 1.02 }}
-                                        onClick={() => {
-                                            setSelectedStaff(null);
-                                            setStep(3);
-                                        }}
-                                        className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${!selectedStaff
-                                            ? 'border-indigo-600 bg-indigo-50'
-                                            : 'border-slate-200 hover:border-indigo-300 bg-white'
-                                            }`}
-                                    >
-                                        <p className="font-semibold text-slate-900">No Preference - Any Available Stylist</p>
-                                    </motion.div>
-                                    {business.staff?.map((staff: any) => (
+                                    {/* Show 'No Preference' only if service has no assigned staff */}
+                                    {(!selectedService?.assignedStaff || selectedService.assignedStaff.length === 0) && (
                                         <motion.div
-                                            key={staff.id}
                                             whileHover={{ scale: 1.02 }}
-                                            className={`border-2 rounded-2xl p-5 transition-all ${selectedStaff?.id === staff.id
+                                            onClick={() => {
+                                                setSelectedStaff(null);
+                                                setStep(3);
+                                            }}
+                                            className={`border-2 rounded-2xl p-5 cursor-pointer transition-all ${!selectedStaff
                                                 ? 'border-indigo-600 bg-indigo-50'
                                                 : 'border-slate-200 hover:border-indigo-300 bg-white'
                                                 }`}
                                         >
-                                            <div
-                                                onClick={() => {
-                                                    setSelectedStaff(staff);
-                                                    setStep(3);
-                                                }}
-                                                className="flex items-center gap-4 cursor-pointer"
+                                            <p className="font-semibold text-slate-900">No Preference - Any Available Stylist</p>
+                                        </motion.div>
+                                    )}
+
+                                    {/* Filter staff based on service assignment */}
+                                    {(() => {
+                                        const hasAssignedStaff = selectedService?.assignedStaff && selectedService.assignedStaff.length > 0;
+                                        const assignedStaffIds = hasAssignedStaff
+                                            ? selectedService.assignedStaff.map((as: any) => as.staffId)
+                                            : [];
+
+                                        const availableStaff = hasAssignedStaff
+                                            ? business.staff?.filter((staff: any) => assignedStaffIds.includes(staff.id))
+                                            : business.staff;
+
+                                        if (!availableStaff || availableStaff.length === 0) {
+                                            return (
+                                                <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                                    <p className="font-medium">No staff available for this service</p>
+                                                    <p className="text-sm mt-1">Please contact the business</p>
+                                                </div>
+                                            );
+                                        }
+
+                                        return availableStaff.map((staff: any) => (
+                                            <motion.div
+                                                key={staff.id}
+                                                whileHover={{ scale: 1.02 }}
+                                                className={`border-2 rounded-2xl p-5 transition-all ${selectedStaff?.id === staff.id
+                                                    ? 'border-indigo-600 bg-indigo-50'
+                                                    : 'border-slate-200 hover:border-indigo-300 bg-white'
+                                                    }`}
                                             >
-                                                {staff.image ? (
-                                                    <img
-                                                        src={staff.image.startsWith('http') ? staff.image : `http://localhost:3001${staff.image}`}
-                                                        alt={staff.name}
-                                                        className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
-                                                    />
-                                                ) : (
-                                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
-                                                        {staff.name.charAt(0)}
-                                                    </div>
-                                                )}
-                                                <div className="flex-1">
-                                                    <h4 className="font-bold text-lg text-slate-900">{staff.name}</h4>
-                                                    {staff.rating > 0 && (
-                                                        <div className="flex items-center gap-1 mt-1">
-                                                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                                                            <span className="font-semibold text-slate-700">{staff.rating.toFixed(1)}</span>
-                                                            <span className="text-sm text-slate-500">({staff.reviewCount} reviews)</span>
+                                                <div
+                                                    onClick={() => {
+                                                        setSelectedStaff(staff);
+                                                        setStep(3);
+                                                    }}
+                                                    className="flex items-center gap-4 cursor-pointer"
+                                                >
+                                                    {staff.image ? (
+                                                        <img
+                                                            src={staff.image.startsWith('http') ? staff.image : `http://localhost:3001${staff.image}`}
+                                                            alt={staff.name}
+                                                            className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                                                            {staff.name.charAt(0)}
                                                         </div>
                                                     )}
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className="font-bold text-lg text-slate-900">{staff.name}</h4>
+                                                            {hasAssignedStaff && (
+                                                                <span className="px-2 py-0.5 bg-indigo-500 text-white text-xs font-bold rounded-full">
+                                                                    Specialized
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {staff.rating > 0 && (
+                                                            <div className="flex items-center gap-1 mt-1">
+                                                                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                                                                <span className="font-semibold text-slate-700">{staff.rating.toFixed(1)}</span>
+                                                                <span className="text-sm text-slate-500">({staff.reviewCount} reviews)</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setViewingStaffId(staff.id);
-                                                    setShowStaffProfile(true);
-                                                }}
-                                                className="mt-3 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
-                                            >
-                                                View Full Profile →
-                                            </button>
-                                        </motion.div>
-                                    ))}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setViewingStaffId(staff.id);
+                                                        setShowStaffProfile(true);
+                                                    }}
+                                                    className="mt-3 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
+                                                >
+                                                    View Full Profile →
+                                                </button>
+                                            </motion.div>
+                                        ));
+                                    })()}
                                 </div>
                                 <button
                                     onClick={() => setStep(1)}
